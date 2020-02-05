@@ -1,14 +1,13 @@
 package com.reindra.moviecatalogue.fragment
 
 import android.os.Bundle
-import android.util.Log
+import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.reindra.moviecatalogue.R
 import com.reindra.moviecatalogue.adapter.MovieAdapter
@@ -18,9 +17,10 @@ import com.reindra.moviecatalogue.model.MovieViewModel
 import com.reindra.moviecatalogue.util.CategoryEnum
 import kotlinx.android.synthetic.main.fragment_fragment_movie.*
 
-class FragmentMovie : Fragment() {
+class FavoriteMovieFragment : androidx.fragment.app.Fragment() {
 
-    private lateinit var movieViewModel: MovieViewModel
+
+    private lateinit var moviesViewModel: MovieViewModel
     private lateinit var adapter: MovieAdapter
 
 
@@ -29,6 +29,12 @@ class FragmentMovie : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val mView = inflater.inflate(R.layout.fragment_fragment_movie, container, false)
+
+        activity?.window?.setSharedElementExitTransition(
+            TransitionInflater.from(context).inflateTransition(
+                R.transition.element_transition
+            )
+        )
 
         adapter = MovieAdapter(activity!!, favListener = { movie, ivHeart, isFavorite ->
             val fav = Favorite(
@@ -41,12 +47,13 @@ class FragmentMovie : Fragment() {
                 category = CategoryEnum.MOVIE.value
             )
             if (isFavorite) {
-                movieViewModel.deleteFavorite(fav)
+                moviesViewModel.deleteFavorite(fav)
                 ivHeart.setImageDrawable(context?.getDrawable(R.drawable.ic_heart))
                 ivHeart.imageTintList = context?.getColorStateList(R.color.grey)
+                Toast.makeText(context, getString(R.string.deleteitem)+" "+movie.title, Toast.LENGTH_SHORT).show()
                 adapter.removeFavorite(fav)
             } else {
-                movieViewModel.insertFavorite(fav)
+                moviesViewModel.insertFavorite(fav)
                 adapter.addFavorite(fav)
                 context?.let {
                     val ivAnimation =
@@ -65,35 +72,39 @@ class FragmentMovie : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         showRecyclerCardView()
-        movieViewModel = ViewModelProviders.of(this).get(MovieViewModel::class.java)
-        movieViewModel.onViewAttached()
-        movieViewModel.getAllFavorites().observe(this, getFavorite)
-        movieViewModel.getMovies().observe(this, getMovie)
-        movieViewModel.setMovies()
-        progressBar.visibility = View.VISIBLE
+        moviesViewModel = ViewModelProviders.of(this).get(MovieViewModel::class.java)
+        moviesViewModel.onViewAttached()
+        moviesViewModel.getAllFavorites().observe(this, getFavorite)
+        tv_no_data.text = resources.getString(R.string.empty)
     }
 
     private val getFavorite = object : Observer<List<Favorite>?> {
         override fun onChanged(listFav: List<Favorite>?) {
             if (listFav != null) {
                 adapter.setFavorites(listFav)
-            }
-        }
-    }
-    private val getMovie = object : Observer<List<MovieItems>?> {
-        override fun onChanged(listMovie: List<MovieItems>?) {
-            if (listMovie != null) {
+                val listMovie: MutableList<MovieItems> = mutableListOf()
+                listFav.forEach {
+                    listMovie.add(
+                        MovieItems(
+                            id = it.id,
+                            title = it.title,
+                            releaseDate = it.date,
+                            rate = it.rate,
+                            synopsis = it.synopsis,
+                            poster = it.poster
+                        )
+                    )
+                }
                 adapter.setData(listMovie)
-                progressBar.visibility = View.GONE
-                Log.d("MovieFragment", "$listMovie")
+
             }
+            view_no_data.visibility = if(adapter.itemCount>0) View.GONE else View.VISIBLE
+
         }
     }
 
     private fun showRecyclerCardView() {
-        rv_category.layoutManager = GridLayoutManager(context, 2)
+        rv_category.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
         rv_category.adapter = adapter
     }
-
 }
-

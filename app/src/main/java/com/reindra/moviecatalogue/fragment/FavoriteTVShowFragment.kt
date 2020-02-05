@@ -1,23 +1,23 @@
-package com.reindra.moviecatalogue.fragment
+package com.reindra.moviecatalogue.adapter
 
 import android.os.Bundle
-import android.util.Log
+import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.reindra.moviecatalogue.R
-import com.reindra.moviecatalogue.adapter.TvShowAdapter
 import com.reindra.moviecatalogue.entity.Favorite
 import com.reindra.moviecatalogue.model.TV
 import com.reindra.moviecatalogue.model.TVShowsModel
 import com.reindra.moviecatalogue.util.CategoryEnum
 import kotlinx.android.synthetic.main.fragment_fragment_tv_show.*
 
-class FragmentTvShow : Fragment() {
+
+class FavoriteTVShowFragment : androidx.fragment.app.Fragment() {
 
     private lateinit var tvShowsModel: TVShowsModel
     private lateinit var adapter: TvShowAdapter
@@ -27,6 +27,12 @@ class FragmentTvShow : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val mView = inflater.inflate(R.layout.fragment_fragment_tv_show, container, false)
+
+        activity?.window?.setSharedElementExitTransition(
+            TransitionInflater.from(context).inflateTransition(
+                R.transition.element_transition
+            )
+        )
 
         adapter = TvShowAdapter(activity!!, favListener = { movie, ivHeart, isFavorite ->
             val fav = Favorite(
@@ -42,6 +48,7 @@ class FragmentTvShow : Fragment() {
                 tvShowsModel.deleteFavorite(fav)
                 ivHeart.setImageDrawable(context?.getDrawable(R.drawable.ic_heart))
                 ivHeart.imageTintList = context?.getColorStateList(R.color.grey)
+                Toast.makeText(context, getString(R.string.deleteitem)+" "+movie.name, Toast.LENGTH_SHORT).show()
                 adapter.removeFavorite(fav)
             } else {
                 tvShowsModel.insertFavorite(fav)
@@ -67,9 +74,7 @@ class FragmentTvShow : Fragment() {
         tvShowsModel = ViewModelProviders.of(this).get(TVShowsModel::class.java)
         tvShowsModel.onViewAttached()
         tvShowsModel.getAllFavorites().observe(this, getFavorite)
-        tvShowsModel.getTVShows().observe(this, getTV)
-        tvShowsModel.setTVShows()
-        progressBar.visibility = View.VISIBLE
+        tv_no_datatv.text = resources.getString(R.string.empty)
 
     }
 
@@ -77,17 +82,23 @@ class FragmentTvShow : Fragment() {
         override fun onChanged(listFav: List<Favorite>?) {
             if (listFav != null) {
                 adapter.setFavorites(listFav)
-            }
-        }
-    }
-    private val getTV = object : Observer<List<TV>?> {
-        override fun onChanged(listTV: List<TV>?) {
-            if (listTV != null) {
+                val listTV: MutableList<TV> = mutableListOf()
+                listFav.forEach {
+                    listTV.add(
+                        TV(
+                            id = it.id,
+                            name = it.title,
+                            firsAirDate = it.date,
+                            rate = it.rate,
+                            synopsis = it.synopsis,
+                            poster = it.poster
+                        )
+                    )
+                }
                 adapter.setData(listTV)
-                adapter.notifyDataSetChanged()
-                progressBar.visibility = View.GONE
-                Log.d("TVFragment", "$listTV")
+                view_no_data.visibility = if(adapter.itemCount>0) View.GONE else View.VISIBLE
             }
+
         }
     }
 
@@ -96,3 +107,4 @@ class FragmentTvShow : Fragment() {
         rv_category.adapter = adapter
     }
 }
+

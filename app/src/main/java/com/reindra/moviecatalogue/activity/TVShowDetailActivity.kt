@@ -2,24 +2,24 @@ package com.reindra.moviecatalogue.activity
 
 import android.os.Bundle
 import android.text.format.DateFormat
-import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.bumptech.glide.Glide
-import com.reindra.moviecatalogue.model.MovieItems
 import com.reindra.moviecatalogue.R
 import com.reindra.moviecatalogue.model.DetailModel
+import com.reindra.moviecatalogue.model.TV
 import com.reindra.moviecatalogue.entity.Favorite
 import com.reindra.moviecatalogue.util.CategoryEnum
 import kotlinx.android.synthetic.main.activity_detail.*
 import java.text.SimpleDateFormat
-import java.util.*
 
-class DetailActivity : AppCompatActivity() {
+class TVShowDetailActivity : AppCompatActivity() {
+
     private lateinit var moviesModel: DetailModel
+    private lateinit var trailerKey: String
     private var isFavorite: Boolean = false
 
     companion object {
@@ -30,17 +30,16 @@ class DetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
 
-        val item = intent.getParcelableExtra<MovieItems>(EXTRA_FILM)
-        toolbar_title.text = item.title
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+
+        val item = intent.getParcelableExtra<TV>(EXTRA_FILM)
+        toolbar_title.text = item.name
         iv_poster.z = 5f
-        Log.d("DetailActivity", "data $item")
 
-        val year = DateFormat.format(
-            "yyyy",
-            SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(item.releaseDate)
-        )
-
-        tv_tittle.text = item.title
+        val year = DateFormat.format("yyyy", SimpleDateFormat("yyyy-MM-dd").parse(item.firsAirDate))
+        tv_tittle.text = item.name
         tv_year.text = year
         tv_synopsis.text = item.synopsis
         val rate = (item.rate.toFloat() * 10).toInt()
@@ -53,18 +52,18 @@ class DetailActivity : AppCompatActivity() {
             .into(iv_poster)
 
         moviesModel = ViewModelProviders.of(this).get(DetailModel::class.java)
-        moviesModel.onViewAttached(item.id, CategoryEnum.MOVIE.value)
+        moviesModel.onViewAttached(item.id, CategoryEnum.TV.value)
         moviesModel.getFavorite().observe(this, getFavorite)
 
         btn_favorite.setOnClickListener {
             val fav = Favorite(
                 id = item.id,
-                title = item.title,
-                date = item.releaseDate,
+                title = item.name,
+                date = item.firsAirDate,
                 rate = item.rate,
                 synopsis = item.synopsis,
                 poster = item.poster,
-                category = CategoryEnum.MOVIE.value
+                category = CategoryEnum.TV.value
             )
             if (isFavorite) {
                 moviesModel.deleteFavorite(fav)
@@ -100,4 +99,5 @@ class DetailActivity : AppCompatActivity() {
             super.onOptionsItemSelected(item)
         }
     }
+
 }

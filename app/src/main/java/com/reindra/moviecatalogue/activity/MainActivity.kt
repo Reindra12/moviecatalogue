@@ -1,13 +1,13 @@
 package com.reindra.moviecatalogue.activity
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import com.reindra.moviecatalogue.R
-import com.reindra.moviecatalogue.fragment.SectionsPagerAdapter
+import com.reindra.moviecatalogue.adapter.ViewPagerAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -15,26 +15,35 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val sectionsPagerAdapter =
-            SectionsPagerAdapter(this, supportFragmentManager)
-        view_pager.adapter = sectionsPagerAdapter
-        tabs.setupWithViewPager(view_pager)
-        supportActionBar?.elevation = 0f
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+
+        vp_main.adapter = ViewPagerAdapter(this, supportFragmentManager)
+        tabs.setupWithViewPager(vp_main)
 
     }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
-        override fun onOptionsItemSelected(item: MenuItem): Boolean {
-            if (item.itemId == R.id.setting_language) {
-                val mIntent = Intent(Settings.ACTION_LOCALE_SETTINGS)
-                startActivity(mIntent)
-            }
-            return super.onOptionsItemSelected(item)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.action_change_settings) {
+            val mIntent = Intent(Settings.ACTION_LOCALE_SETTINGS)
+            startActivity(mIntent)
         }
+        if (item.itemId == R.id.action_favorite) {
+            val intent = Intent(this, FavoriteActivity::class.java)
+            startActivity(intent)
+        }
+
+        return super.onOptionsItemSelected(item)
     }
+}
+
+
+
 
 
 

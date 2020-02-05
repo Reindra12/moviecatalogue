@@ -12,7 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".activity.DetailActivity"></activity>
+        <activity android:name=".activity.TVShowDetailActivity"/>
+        <activity android:name=".activity.FavoriteActivity" />
+        <activity android:name=".activity.DetailActivity" />
         <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

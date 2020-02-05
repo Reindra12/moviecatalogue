@@ -8,4 +8,28 @@
     <string name="readmore">readmore</string>
     <string name="photo">photo</string>
     <string name="string_language">Language</string>
+    <string name="title_discover">home</string>
+    <string name="title_favorite">favorite</string>
+    <string name="title_setting">setting</string>
+
+    <string name="submit">save</string>
+    <string name="title">title</string>
+    <string name="delete">delete</string>
+    <string name="tab_text_3">Favorite</string>
+    <string name="favactivity">activity</string>
+    <string name="desc_ic_heart">heart</string>
+    <string name="date">Date</string>
+
+    <string name="add"> \n has been added to Favorites</string>
+    <string name="added">\n already in favorites</string>
+    <string name="data">Not Found</string>
+    <string name="datafav">Empty</string>
+    <string name="deleteitem">
+Deleted Successed</string>
+    <string name="dialogy">YES</string>
+    <string name="dialogn">NO</string>
+    <string name="favorite">favorite</string>
+    <string name="score">score</string>
+    <string name="empty">movie does not exist</string>
+    <string name="emptytv">TV Show does not exist</string>
 </resources>
